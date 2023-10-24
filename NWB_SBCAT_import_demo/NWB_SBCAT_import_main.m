@@ -147,11 +147,4 @@ if calcMetrics
     movegui(QAfig_sb,'west') 
     QAfig_sb.WindowState = 'maximized';
 end
-%% Areas of low spike count clusters
-% for i = 1:length(all_units_sb)
-%     all_units_sb(i).numSpikes = length(all_units_sb(i).spike_times);
-% end
-% sub50Areas = {all_units_sb([all_units_sb(:).numSpikes] <50).unit_area}';
-% sub50Areas = horzcat(sub50Areas,{all_units_sb([all_units_sb(:).numSpikes] <50).numSpikes}');
-% disp(sub50Areas)
 
