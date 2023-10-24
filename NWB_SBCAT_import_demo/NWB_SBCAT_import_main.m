@@ -138,7 +138,6 @@ end
 %% Calculate Spike Sorting Metrics (Sternberg only)
 calcMetrics = 1;
 if calcMetrics
-    % Kyzar et. al. Figure 3.a-h
     is_sternberg = true;
     QAfig_sb = NWB_QA_graphs(nwbAll_sb, all_units_sbcat, is_sternberg);
     QAfig_sb.set("Visible","on")
