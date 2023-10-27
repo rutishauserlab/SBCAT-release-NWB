@@ -40,7 +40,7 @@ Dandi datasets are accessible through the Dandi command line interface (CLI). To
 
 After installing the Dandi CLI, use `dandi download [insert dataset link]` to download the dataset. 
 
-## Installation & File Validation (Python)
+## File Validation (Python)
 
 NWB Files can additionally be loaded and analyzed using the [PyNWB](https://github.com/NeurodataWithoutBorders/pynwb) python package. Further documentation can be found [here](https://pynwb.readthedocs.io/en/stable/). 
 
