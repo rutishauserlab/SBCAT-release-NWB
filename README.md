@@ -1,10 +1,21 @@
 # Sample code for: Control of working memory maintenance by theta-gamma phase amplitude coupling of human hippocampal neurons
 
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
-[![Generic badge](https://img.shields.io/badge/unpublished_version-green.svg)](https://rb.gy/otj7q)
-[![Generic badge](https://img.shields.io/badge/DOI_placeholder-orange.svg)](https://rb.gy/otj7q)
+[![Generic badge](https://img.shields.io/badge/release-pending-green.svg)](https://rb.gy/otj7q)
+[![Generic badge](https://img.shields.io/badge/DOI-pending-orange.svg)](https://rb.gy/otj7q)
 
 ## Introduction
+
+This repository contains the code that accompanies Daume et. al. 'Control of working memory maintenance by theta-gamma phase amplitude coupling of human hippocampal neurons.' The purpose of the code in this repository is to provide examples of how to use the released data. This dataset is formatted in the [Neurodata Without Borders (NWB)](https://www.nwb.org/) format, which can easily be accessed from both MATLAB and Python as described [here](https://nwb-schema.readthedocs.io/en/latest/index.html). 
+
+Abstract of the paper:
+>Retaining information in working memory (WM) is a demanding process that relies on cognitive control to protect memoranda-specific persistent activity from interference. How cognitive control regulates WM storage, however, remains unknown. We hypothesized that interactions of frontal control and hippocampal persistent activity are coordinated by theta-gamma phase amplitude coupling (TG-PAC). We recorded single neurons in the human medial temporal and frontal lobe while patients maintained multiple items in WM. In the hippocampus, TG-PAC was indicative of WM load and quality. We identified cells that selectively spiked during nonlinear interactions of theta phase and gamma amplitude. These PAC neurons were more strongly coordinated with frontal theta activity when cognitive control demand was high, and they introduced information-enhancing and behaviorally relevant noise correlations with persistently active neurons in the hippocampus. We show that TG-PAC integrates cognitive control and WM storage to improve the fidelity of WM representations and facilitate behavior.
+
+
+<p align="center">
+  <img width="400" height="500" src="https://placehold.co/400x500.png">
+  <img width="400" height="500" src="https://placehold.co/400x500.png">
+</p>
 
 
 ## Installation (Code)
@@ -45,34 +56,24 @@ All validators returned no errors in data formatting & best-use practices across
 ## MATLAB Analysis
 * NOTE: To be added
 
+The main script in this repo, `NWB_SBCAT_import_main.m`, is designed to analyze the released dataset and to reproduce select figures & metrics noted in Daume et. al. [year]. It can calculate several metrics related to behavior (reaction time, accuracy), spike sorting, and single-unit (SU) activity during the task.
 
+### Steps to Use the Script
+* **Set Parameters:** The first section of the script sets important parameters. The `importRange` is the range of subject IDs for the dataset. For the current release, subject IDs have a range of `1:[NOTE MAX RANGE. FILL LATER]`. 
 
+* **Initialization and Pathing:** The script then defines the directory paths for the code, the currently installed MatNWB package, and the dataset, and then adds them to the MATLAB path. If figures are generated, there is an additional option to add a custom save destination. Please ensure that the defined paths in the script are correct for your setup. This section also uses MatNWB's generateCore() function to initialize the NWB API if it has not been initialized already.
 
+* **Import Datasets From Folder:** The script will then import datasets from the given folder using the `NWB_importFromFolder` function. Only files specified using `importRange` and `taskFlag` will be loaded into the workspace. 
 
+* **Extracting Single Units:** Single unit information is extracted from the loaded NWB files for ease of indexing, using the `NWB_SB_extractUnits` function. If spike waveforms are not needed for analysis, the `load_all_waveforms` flag can be set to `0` to only extract the mean waveform. All future plots will use this mean waveform instead of a spike waveform pdf. 
 
+* **Task Analysis:** This section is preceded by a parameters section, which allows for the control of various stages of the analysis and plotting process. For example, one can choose to plot figures for significant cells by setting `paramsSC.doPlot = 0` or filter units being used for analysis by specifying a minimum firing rate threshold `paramsSC.rateFilter`. To disable analysis of all cells entirely, set `paramsSC.calcSelective = 0`. 
 
+* **Recordings by Area:** The script also calculates the number of LFP channels and cells by area and saves the results into a .xlsx file. This can be disabled by setting `countAreas = 0`.
+  
+* **Spike Sorting Quality Metrics:** This section plots spike sorting metrics for single units recorded in the Sternberg/screening tasks. These metrics include the percentage of inter-spike intervals (ISIs) that were less than 3 ms, mean firing rates for all units, coefficient of variation (CV2) values for all units, signal-to-noise ratio (SNR) of the peak of the mean waveform, mean SNR for all values in a unit’s mean waveform, pairwise projection distance between each unit in which multiple units were found on the same electrode, isolation distance (scaled to log 10 for ease of viewing) across all units for which this metric was defined.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Please make sure to thoroughly read the comments in the code to understand the functionality of each part. If you encounter any problems, please report them as issues in the repository.
 
 
 ## Contributors
