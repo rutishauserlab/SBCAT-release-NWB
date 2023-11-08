@@ -3,7 +3,7 @@ function [sig_cells,areasSternberg] = NWB_calcSelective_SB(nwbAll, all_units, pa
 %selectivity tests for the sternberg task. Optionally plots trial aligned
 %spikes
 
-if isfield(params,'rateFilter') && params.rateFilter > 0
+if isfield(params,'rateFilter') && ~isempty(params.rateFilter) && params.rateFilter > 0
     rateFilter = params.rateFilter;
 else
     rateFilter = [];
@@ -24,7 +24,7 @@ all_units = all_units(logical(aboveRate));
 
 
 areasSternberg = cell(length(all_units),1);
-concept_cells_sb = zeros(length(all_units),1); alphaLim = 0.05;
+concept_cells_sb = zeros(length(all_units),1); 
 hzPref = zeros(length(all_units),1);
 hzNonPref = zeros(length(all_units),1);
 maint_cells_sb = zeros(length(all_units),1);
@@ -39,7 +39,7 @@ for i = 1:length(all_units)
     brain_area = nwbAll{SU.session_count}.general_extracellular_ephys_electrodes.vectordata.get('location').data.load(SU.electrodes);
     clusterID = nwbAll{SU.session_count}.units.vectordata.get('clusterID_orig').data.load(SU.unit_id);
     areasSternberg{i} = brain_area{:};
-    fprintf('Processing: (%d/%d) Session SBID %d, Unit %d, Cluster %d ',i,length(all_units),subject_id,cellID,clusterID)
+    fprintf('Processing: (%d/%d) sub-%s-ses-%s, Unit %d Cluster %d ',i,length(all_units),subject_id,session_id,cellID,clusterID)
     
     % Loading stim timestamps and loads
     tsFix = num2cell(nwbAll{SU.session_count}.intervals_trials.vectordata.get('timestamps_FixationCross').data.load());
@@ -61,169 +61,107 @@ for i = 1:length(all_units)
 
     stim = cell2struct(...
         horzcat(tsFix,tsEnc1,tsEnc2,tsEnc3,tsMaint, tsProbe,...
-        ID_Enc1,ID_Enc2,ID_Enc3,ID_Probe,CAT_Enc1,CAT_Enc2,CAT_Enc3),...
+        ID_Enc1,ID_Enc2,ID_Enc3,ID_Probe,CAT_Enc1,CAT_Enc2,CAT_Enc3,CAT_Probe),...
         {'tsFix','tsEnc1','tsEnc2','tsEnc3','tsMaint','tsProbe',...
-        'idEnc1','idEnc2','idEnc3','idProbe','CAT_Enc1','CAT_Enc2','CAT_Enc3'},2);
+        'idEnc1','idEnc2','idEnc3','idProbe','CAT_Enc1','CAT_Enc2','CAT_Enc3','CAT_Probe'},2);
     
     [idUnique, ~, ic] = unique([stim.CAT_Enc1]);    
     uniqueCounts = histcounts(ic,'BinMethod','integers');
     
-    HzEnc1 = NaN(length(stim),1);
+    %% Get all stimulus rates
     signalDelay = 0.2; % Delay of stimulus onset to effect. 
     stimOffset = 1; % Time past stimulus onset. End of picture presentation.
+    HzEnc1 = NaN(length(stim),1);
     for k = 1:length(HzEnc1)
         periodFilter = (SU.spike_times>(stim(k).tsEnc1+signalDelay)) & (SU.spike_times<(stim(k).tsEnc1+stimOffset));
         singleTrialSpikes = SU.spike_times(periodFilter);
         trialRate = length(singleTrialSpikes)/(stimOffset-signalDelay); % Firing rate across testing period.
         HzEnc1(k) = trialRate;
     end
-    
+    nonZ_tsEnc2 = nonzeros([stim.tsEnc2]); nonZ_CAT_Enc2 = nonzeros([stim.CAT_Enc2]);
+    HzEnc2 = NaN(length(nonZ_tsEnc2),1);
+    for k = 1:length(HzEnc2)
+        periodFilter = (SU.spike_times>(nonZ_tsEnc2(k)+signalDelay)) & (SU.spike_times<(nonZ_tsEnc2(k)+stimOffset));
+        singleTrialSpikes = SU.spike_times(periodFilter);
+        trialRate = length(singleTrialSpikes)/(stimOffset-signalDelay); % Firing rate across testing period.
+        HzEnc2(k) = trialRate;
+    end
+    nonZ_tsEnc3 = nonzeros([stim.tsEnc3]); nonZ_CAT_Enc3 = nonzeros([stim.CAT_Enc3]);
+    HzEnc3 = NaN(length(nonZ_tsEnc3),1);
+    for k = 1:length(HzEnc3)
+        periodFilter = (SU.spike_times>(nonZ_tsEnc3(k)+signalDelay)) & (SU.spike_times<(nonZ_tsEnc3(k)+stimOffset));
+        singleTrialSpikes = SU.spike_times(periodFilter);
+        trialRate = length(singleTrialSpikes)/(stimOffset-signalDelay); % Firing rate across testing period.
+        HzEnc3(k) = trialRate;
+    end
+    nonZ_tsProbe = nonzeros([stim.tsProbe]); nonZ_CAT_Probe = nonzeros([stim.CAT_Probe]);
+    HzProbe = NaN(length(nonZ_tsProbe),1);
+    for k = 1:length(HzProbe)
+        periodFilter = (SU.spike_times>(nonZ_tsProbe(k)+signalDelay)) & (SU.spike_times<(nonZ_tsProbe(k)+stimOffset));
+        singleTrialSpikes = SU.spike_times(periodFilter);
+        trialRate = length(singleTrialSpikes)/(stimOffset-signalDelay); % Firing rate across testing period.
+        HzProbe(k) = trialRate;
+    end
+
+    %% Compile Stimulus Rates
+    Hz_allTrials = [HzEnc1;HzEnc2;HzEnc3;HzProbe];
+    CAT_allTrials = [[stim.CAT_Enc1]';nonZ_CAT_Enc2;nonZ_CAT_Enc3;nonZ_CAT_Probe];
+
     % Finding image with maximum response. Used in stage 2 test. 
-    nUniqueStim = length(unique([stim.CAT_Enc1]));
+    nUniqueStim = length(unique(CAT_allTrials));
     mResp=nan(nUniqueStim,1);
     for k=1:nUniqueStim
-        mResp(k) = mean(HzEnc1([stim.CAT_Enc1]==k));
+        mResp(k) = mean(Hz_allTrials(CAT_allTrials==k));
     end
     idMaxHz = find(mResp==max(mResp),1);
-    id_Trial_maxOnly = [stim.CAT_Enc1]; id_Trial_maxOnly([stim.CAT_Enc1]~=idMaxHz) = -1;
+    id_Trial_maxOnly = CAT_allTrials; id_Trial_maxOnly(CAT_allTrials~=idMaxHz) = 0;
     
-    %% Significance Tests: Concept Cells
-    % Count spikes in 200-1000ms window following stimulus onset
+    %% Significance Tests: Category Cells
+    % Count spikes in 200-1000ms window following all stimuli onsets (Enc1,
+    % Enc2, Enc3, & Probe)
     % following the first encoding period. Use a 1-way ANOVA followed by a
     % t-test of the maximal response versus the non-selective responses.
     % Note that using a 1-way anova with two groups simplifies to a t-test
-    p_ANOVA = 1; p_bANOVA = 1;%#ok<NASGU> % Preset as '1' to allow for paramsSB.plotAlways.
-    p_ANOVA = anovan(HzEnc1,{string([stim.CAT_Enc1])}, 'display','off','model', 'linear','alpha',alphaLim,'varnames','picID');
-    if p_ANOVA < alphaLim % First test: 1-way ANOVA
-        p_bANOVA = anovan(HzEnc1,{string(id_Trial_maxOnly)}, 'display','off','model', 'linear','alpha',alphaLim,'varnames','picID');
-        if p_bANOVA < alphaLim % Second Test: Binarized 1-way ANOVA (simplifies to t-test)
-        fprintf('| Concept -> SID %d, Unit %d p1:%.2f p2:%.2f',SU.subject_id,SU.unit_id,p_ANOVA,p_bANOVA)
-        concept_cells_sb(i) = 1;
+    alphaLim = 0.05;
+    % sig_method = 'parametric';
+    sig_method = 'non-parametric';
+    if strcmp(sig_method,'parametric')
+        p_ANOVA = 1; p_bANOVA = 1;%#ok<NASGU> % Preset as '1' to allow for paramsSB.plotAlways.
+        p_ANOVA = anovan(Hz_allTrials,{string(CAT_allTrials)}, 'display','off','model', 'linear','alpha',alphaLim,'varnames','picID');
+        if p_ANOVA < alphaLim % First test: 1-way ANOVA
+            p_bANOVA = anovan(Hz_allTrials,{string(id_Trial_maxOnly)}, 'display','off','model', 'linear','alpha',alphaLim,'varnames','picID');
+            if p_bANOVA < alphaLim % Second Test: Binarized 1-way ANOVA (simplifies to t-test)
+            fprintf('| Category -> sub-%s-ses-%s, Unit %d p1:%.2f p2:%.2f',SU.subject_id,SU.session_id,SU.unit_id,p_ANOVA,p_bANOVA)
+            concept_cells_sb(i) = 1;
+            end
         end
+    elseif strcmp(sig_method,'non-parametric')
+        p_ANOVA = 1; p_bANOVA = 1;%#ok<NASGU> % Preset as '1' to allow for paramsSB.plotAlways.
+        groups = cellstr(string(CAT_allTrials));
+        p_ANOVA = randanova1(Hz_allTrials,groups, 2000);
+        if p_ANOVA < alphaLim % First test: 1-way ANOVA            
+            a = Hz_allTrials(CAT_allTrials==idMaxHz); b = Hz_allTrials(CAT_allTrials~=idMaxHz); 
+            p_perm = permutationTest(a,b,2000,'sidedness','larger');
+            if p_perm < alphaLim % Second Test: Binarized 1-way ANOVA (simplifies to t-test)
+            fprintf('| Category -> sub-%s-ses-%s, Unit %d p1:%.2f p2:%.2f',SU.subject_id,SU.session_id,SU.unit_id,p_ANOVA,p_perm)
+            concept_cells_sb(i) = 1;
+            end
+            p_bANOVA = p_perm; % For var references later in the script.
+        end      
+    else
+        error('Significance method not specified')
     end
+
+
     % Saving rate data for additional tests between pref/non-pref trials
-    hzPref(i) = mean(HzEnc1(logical(id_Trial_maxOnly)));
-    hzNonPref(i) = mean(HzEnc1(~logical(id_Trial_maxOnly)));
+    hzPref(i) = mean(Hz_allTrials(logical(id_Trial_maxOnly)));
+    hzNonPref(i) = mean(Hz_allTrials(~logical(id_Trial_maxOnly)));
 
-    %% Significance Tests: Maintenance Cells
-    % % Perform a t-test between the mean firing rate during the maintenance
-    % % period and baseline period (fixation cross). If the cell was
-    % % idenfified as a concept cell, the maintenance activity of
-    % % non-selective images must be higher than the fixation baseline as
-    % % well.
-    % HzMaint = NaN(length(stim),1);
-    % maintDelay = 0; % Delay of maint onset to effect. 
-    % maintOffset = 2.5; % Time past maint onset. End of picture presentation.
-    % for k = 1:length(HzMaint)
-    %     periodFilter = (SU.spike_times>(stim(k).tsMaint+maintDelay)) & (SU.spike_times<(stim(k).tsMaint+maintOffset));
-    %     singleTrialSpikes = SU.spike_times(periodFilter);
-    %     trialRate = length(singleTrialSpikes)/(maintOffset-maintDelay); % Firing rate across testing period.
-    %     HzMaint(k) = trialRate;
-    % end
-    % HzFix = NaN(length(stim),1);
-    % fixDelay = 0; % Delay of fix onset to effect. 
-    % fixOffset = 0.5; % Time past fixation onset. End of picture presentation.
-    % for k = 1:length(HzFix)
-    %     periodFilter = (SU.spike_times>(stim(k).tsFix+fixDelay)) & (SU.spike_times<(stim(k).tsFix+fixOffset));
-    %     singleTrialSpikes = SU.spike_times(periodFilter);
-    %     trialRate = length(singleTrialSpikes)/(fixOffset-fixDelay); % Firing rate across testing period.
-    %     HzFix(k) = trialRate;
-    % end
-    % % % Performing paired t-test
-    % sidedness = 'right';
-    % [detect_maint, p_maint] = ttest(HzMaint,HzFix,'Tail',sidedness,'Alpha',alphaLim);
-    % if detect_maint && concept_cells_sb(i) % If the maint cell was previously marked as a concept cell
-    %     non_selective_trials = ~id_Trial_maxOnly;
-    %     [maint_cells_sb(i),p2_maint] = ttest(HzMaint(non_selective_trials),HzFix(non_selective_trials),'Tail',sidedness,'Alpha',alphaLim);
-    %     if maint_cells_sb(i)
-    %         fprintf('| Maint -> M:%.2fHz F:%.2fHz p:%.2f, p2:%.2f ',mean(HzMaint),mean(HzFix),p_maint,p2_maint)
-    %     end
-    % elseif detect_maint && ~concept_cells_sb(i) % for pure maint cells. 
-    %     maint_cells_sb(i) = 1;
-    %     fprintf('| Maint -> M:%.2fHz F:%.2fHz p:%.2f ',mean(HzMaint),mean(HzFix),p_maint)
-    % end
-    % 
-    % % % ALT METRIC: Permutation Test (Yields similar results)
-    % % permutations = 2000;
-    % % sidedness = 'larger'; % 'smaller': s1<s2; 'larger': s1>s2
-    % % [p_maint, ~, ~] = permutationTest(HzMaint,HzFix, permutations, 'sidedness', sidedness);
-    % % if p_maint < alphaLim && concept_cells_sb(i) % If the maint cell was previously marked as a concept cell
-    % %     non_selective_trials = ~id_Trial_maxOnly;
-    % %     [p2_maint,~,~] = permutationTest(HzMaint(non_selective_trials),HzFix(non_selective_trials), permutations, 'sidedness',sidedness);
-    % %     if p2_maint < alphaLim
-    % %         fprintf('| Maint -> M:%.2fHz F:%.2fHz p:%.2f, p2:%.2f ',mean(HzMaint),mean(HzFix),p_maint,p2_maint)
-    % %         maint_cells_sb(i) = 1;
-    % %     end
-    % % elseif p_maint < alphaLim && ~concept_cells_sb(i) % for pure maint cells. 
-    % %     maint_cells_sb(i) = 1;
-    % %     fprintf('| Maint -> M:%.2fHz F:%.2fHz p:%.2f ',mean(HzMaint),mean(HzFix),p_maint)
-    % % end
-
-
-    %% Significance Tests: Probe Cells
-    % % Perform a t-test between the firing rates in the probe period and the
-    % % maint/enc periods. 
-    % HzProbe = NaN(length(stim),1);
-    % probeDelay = .2; % Delay of probe onset to effect. 
-    % probeOffset = 1; % Time past probe onset. End of picture presentation.
-    % for k = 1:length(HzProbe)
-    %     periodFilter = (SU.spike_times>(stim(k).tsProbe+probeDelay)) & (SU.spike_times<(stim(k).tsProbe+probeOffset));
-    %     singleTrialSpikes = SU.spike_times(periodFilter);
-    %     trialRate = length(singleTrialSpikes)/(probeOffset-probeDelay); % Firing rate across testing period.
-    %     HzProbe(k) = trialRate;
-    % end
-    % 
-    % % Appending Enc/Maint periods for each trial.
-    % HzEnc = NaN(length(stim),1);
-    % encDelay = 0.2;
-    % encOffset = 1;
-    % % maintDelay = 0; % Delay of maint onset to effect. 
-    % % maintOffset = 2.5; % Time past maint onset. End of picture presentation.
-    % for k = 1:length(HzEnc)
-    %     trialSpikeCounts = 0; totalTime = 0;
-    %     % Enc 1
-    %     periodFilter = (SU.spike_times>(stim(k).tsEnc1+encDelay)) & (SU.spike_times<(stim(k).tsEnc1+encOffset));
-    %     singleTrialSpikes = SU.spike_times(periodFilter);
-    %     trialSpikeCounts = trialSpikeCounts + length(singleTrialSpikes);
-    %     totalTime = totalTime + (encOffset-encDelay);
-    %     if stim(k).tsEnc2 > 0 % Enc 2
-    %         periodFilter = (SU.spike_times>(stim(k).tsEnc2+encDelay)) & (SU.spike_times<(stim(k).tsEnc2+encOffset));
-    %         singleTrialSpikes = SU.spike_times(periodFilter);
-    %         trialSpikeCounts = trialSpikeCounts + length(singleTrialSpikes);
-    %         totalTime = totalTime + (encOffset-encDelay);
-    %     end
-    %     if stim(k).tsEnc3 > 0 % Enc 3
-    %         periodFilter = (SU.spike_times>(stim(k).tsEnc2+encDelay)) & (SU.spike_times<(stim(k).tsEnc2+encOffset));
-    %         singleTrialSpikes = SU.spike_times(periodFilter);
-    %         trialSpikeCounts = trialSpikeCounts + length(singleTrialSpikes);
-    %         totalTime = totalTime + (encOffset-encDelay);
-    %     end
-    %     % % Maint (Deprecated, t-test calculated separately)
-    %     % periodFilter = (SU.spike_times>(stim(k).tsMaint+maintDelay)) & (SU.spike_times<(stim(k).tsEnc2+maintOffset));
-    %     % singleTrialSpikes = SU.spike_times(periodFilter);
-    %     % trialSpikeCounts = trialSpikeCounts + length(singleTrialSpikes); 
-    %     % totalTime = totalTime + (maintOffset-maintDelay);
-    % 
-    %     % Calculating Total Rate per trial
-    %     trialRate = trialSpikeCounts/totalTime; % Firing rate across testing period.
-    %     HzEnc(k) = trialRate;
-    % end
-    % 
-    % 
-    % % Performing paired one-tailed t-test
-    % [detect_probe1, p_probe1] = ttest(HzProbe,HzEnc,'Tail','right','Alpha',alphaLim);
-    % [detect_probe2, p_probe2] = ttest(HzProbe,HzMaint,'Tail','right','Alpha',alphaLim);
-    % if detect_probe1 && detect_probe2
-    %     fprintf('| Probe -> P:%.2fHz E:%.2fHz M:%.2fHz p:%.2f p2:%.2f ',mean(HzProbe),mean(HzEnc),mean(HzMaint),p_probe1,p_probe2)
-    %     probe_cells_sb(i) = 1;
-    % end
-
-    
 
     %% Rasters, PSTH, & Selective Image
     % Flagging significant cells for plotting
     switch params.plotMode
-        case 1 % Concept
+        case 1 % Category
             plotFlag = params.doPlot && concept_cells_sb(i);
         case 2 % Maint
             plotFlag = params.doPlot && maint_cells_sb(i);
@@ -232,7 +170,7 @@ for i = 1:length(all_units)
         case 4 % All
             plotFlag = params.doPlot && (concept_cells_sb(i) || maint_cells_sb(i) || probe_cells_sb(i));
         otherwise
-            warning('Plot mode not specified. Defaulting to concept cells.\n')
+            warning('Plot mode not specified. Defaulting to category cells.\n')
             in = input('Continue? (y/n)\n',"s");
             if any(strcmp(in,["Y","y"]))
                 plotFlag = params.doPlot && concept_cells_sb(i);
@@ -240,7 +178,7 @@ for i = 1:length(all_units)
                 fprintf('Aborting.\n')
                 return
             else
-                fprintf('Input not specified. Aborting.\n')
+                fprintf('Answer not specified. Aborting.\n')
                 return
             end
     end
@@ -305,7 +243,6 @@ for i = 1:length(all_units)
         periods.Probe = NWB_determineSBPeriods( nonzeros([stim.tsProbe]), period_StimBaselineProbe, period_StimOnTimeProbe );
         
         
-
         figNum = i;
         currentFigure = figure(figNum);
         currentFigure.set('Name', plabelStr)
@@ -417,22 +354,12 @@ for i = 1:length(all_units)
 
         [axRaster_Probe,axPSTH_Probe] = plotSpikeRaster_multiple_simplified( 3, offsets, limitRange_forRaster, limitRange_forPSTH, markerPos, ...
             SU.spike_times, {periods.Probe}, {[indsProbe_pref_inmem;indsProbe_pref_outmem], [indsProbe_nonpref_inmem;indsProbe_nonpref_outmem]}, ...
-            { 'Pref', 'PNonPref'},   [2 6 11], [2 6 5], params_probe ); 
+            { 'Pref', 'NonPref'},   [2 6 11], [2 6 5], params_probe ); 
         title(['Probe ']);
         
 
         %% === Selective Image ===    
         indPrefImg = idUnique(find(idUnique==idMaxHz,1)); % Index in StimulusTemplates at which the preferred image occurs
-        % current_session = all_units(i).session_count;
-        % StimulusTemplates = nwbAll{current_session}.stimulus_templates.get('StimulusTemplates') ;
-        % 
-        % prefPathUnstripped = StimulusTemplates.order_of_images.data(indPrefImg).path; % Loading raw path
-        % stripPrepPath = split(prefPathUnstripped,'/'); % Stripping fileseps
-        % prefPath = stripPrepPath{end}; % Grabbing final entry
-        % 
-        % prefImgload = StimulusTemplates.image.get(prefPath).data.load; % Loading using the key from order_of_images. 
-        % prefImg = permute(prefImgload,[2,3,1]); % Permuting for matlab compatibility
-        
         % NOTE: Category not explicitly stated. Dependent on task version. 
         catLabel = sprintf('Selective Category:\n%d',indPrefImg);
 
@@ -490,7 +417,7 @@ for i = 1:length(all_units)
             % Append selectivity to folder. Will store in separate folder
             % for each type. Allows for folders for overlapping cell types.
             if concept_cells_sb(i)
-                figPath = [figPath '_concept']; %#ok<AGROW>
+                figPath = [figPath '_category']; %#ok<AGROW>
             end
             if maint_cells_sb(i)
                 figPath = [figPath '_maint']; %#ok<AGROW>
@@ -510,16 +437,12 @@ for i = 1:length(all_units)
     end
     fprintf('\n') % New line for each cell
 end
-% Comparing concept cells for preferred and non-preferred trials. 
+% Comparing category cells for preferred and non-preferred trials. 
 hzPref_conceptOnly = hzPref(logical(concept_cells_sb));
 hzNonPref_conceptOnly = hzNonPref(logical(concept_cells_sb));
 [~, p_prefNonPref] = ttest(hzPref_conceptOnly,hzNonPref_conceptOnly,'Tail','right','Alpha',alphaLim);
-% p_prefNonPref = permutationTest(hzPref_conceptOnly,hzNonPref_conceptOnly,2000,'sidedness','larger');
 
-fprintf('Total Concept: %d/%d (%.2f%%)\n',sum(concept_cells_sb),length(all_units),sum(concept_cells_sb)/length(all_units)*100)
-fprintf('Persistent Firing : Pref %.2f ± %.2f | Non-Pref %.2f ± %.2f | p = %.4f\n',mean(hzPref_conceptOnly),std(hzPref_conceptOnly),mean(hzNonPref_conceptOnly),std(hzNonPref_conceptOnly), p_prefNonPref )
-fprintf('Total Maint: %d/%d (%.2f%%)\n',sum(maint_cells_sb),length(all_units),sum(maint_cells_sb)/length(all_units)*100)
-fprintf('Total Probe: %d/%d (%.2f%%)\n',sum(probe_cells_sb),length(all_units),sum(probe_cells_sb)/length(all_units)*100)
+fprintf('Total Category Cells: %d/%d (%.2f%%)\n',sum(concept_cells_sb),length(all_units),sum(concept_cells_sb)/length(all_units)*100)
 sig_cells.concept_cells = concept_cells_sb;
 sig_cells.hzPref = hzPref;
 sig_cells.hzNonPref = hzNonPref;

@@ -1,4 +1,4 @@
-function [QA] = NWB_QA_graphs(nwbAll,units, is_sternberg)
+function [QA] = NWB_QA_graphs(nwbAll,units, plot_behavior)
 % NWB_QA_graphs Generates behavioral and spike sorting metrics used in the SB
 % data release. 
 % nwbAll: A cell arrays containing all nwb files in the dataset 
@@ -10,7 +10,7 @@ function [QA] = NWB_QA_graphs(nwbAll,units, is_sternberg)
 QA = figure("Visible","on");
 sessionCount = length(nwbAll);
 
-if is_sternberg % If Sternberg, give behavioral plots
+if plot_behavior % If Sternberg, give behavioral plots
     %% Accuracy
     accTotals = zeros(sessionCount,1);
     for i = 1:length(accTotals)
@@ -103,11 +103,18 @@ end
 total_ts = {units(:).spike_times}; 
 total_chan = [units(:).session_count;units(:).electrodes]';
 
+%  Filter clusters with 3 or less spikes
+thresh = 3;
+meets_threshold = cell2mat(cellfun(@(x) length(x)>thresh,total_ts,'UniformOutput',false));
+total_ts = total_ts(meets_threshold);
+total_chan = total_chan(meets_threshold,:);
+
 ISI_sub3 = NaN(length(total_ts),1);
 mean_rate = NaN(length(total_ts),1);
 CV2s = NaN(length(total_ts),1);
 % ts Metrics
 for i = 1:length(total_ts) % Summary Over all sessions
+    fprintf('Compiling metrics (cell %d)\n',i)
     ts = total_ts{i}; % Import & Offset
     % ISI
     ts_isi = ts.*1e3; % Convert to ms
@@ -120,7 +127,13 @@ for i = 1:length(total_ts) % Summary Over all sessions
     ts_cv2 = ts;
     isi_cv2 = diff(ts_cv2);
     ignoreMode = 1;
-    [CV2, ~, ~, ~] = calcCV2(isi_cv2, ignoreMode);
+    try
+        [CV2, ~, ~, ~] = calcCV2(isi_cv2, ignoreMode);
+    catch e
+        fprintf('Error found for cell %d in total_ts\n', i)
+        error(e.message)
+    end
+
     CV2s(i) = CV2;
 end
 % Filter NaNs in CV2 (for very few spikes in cluster)

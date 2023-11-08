@@ -6,18 +6,20 @@ fs = filesep;
 %% Parameters
 
 % subject IDs for dataset.
-% importRange = 6:7;% :43; % Dataset: Daume et al 
-% importRange = 43; % faulty JHU export. (Due to it only storing one neuron)
-importRange = [];
+% importRange = 43; % JHU export.
+importRange = []; % Full Range
+% importRange = [ 0 0 0]; % SB-CAT Example Cat Cells
+% importRange = 1:7; % Testing range
 
 %% Initializing and pathing
 paths.baseData = 'D:\DandiDownloads\000673'; % Dataset directory
+% paths.baseData = 'Z:\LabUsers\kyzarm\data\NWB_SBCAT\data_NWB'; % 2hr load time due to network constraints
 paths.nwb_sb = paths.baseData; % Dandiset Directory
 % This script should be in master directory
 scriptPath = matlab.desktop.editor.getActiveFilename; scriptPathParse = split(scriptPath,fs); scriptPathParse = scriptPathParse(1:end-1);
 paths.code = strjoin(scriptPathParse,filesep); 
 paths.matnwb = 'C:\svnwork\matnwb-2.6.0.2';
-paths.figOut = [paths.code fs 'figures'];
+paths.figOut = [strjoin(scriptPathParse(1:end-1),filesep) fs 'sbcat_figures'];
 % Helpers
 if(~isdeployed) 
   cd(fileparts(matlab.desktop.editor.getActiveFilename));
@@ -59,7 +61,7 @@ paramsSB.plotAlways = 0; % Plot regardless of selectivity (warning: generates a 
 paramsSB.plotMode = 1; % Which cell type to plot (1: Concept, 2: Maint, 3: Probe, 4: All)
 paramsSB.exportFig = 0; 
 paramsSB.exportType = 'png'; % File type for export. 'png' is the default. 
-paramsSB.rateFilter =  0; % Rate filter in Hz. Setting to zero disables the filter. 
+paramsSB.rateFilter =  []; % Rate filter in Hz. Setting to empty disables the filter. 
 paramsSB.figOut = [paths.figOut fs 'stats_sternberg'];
 
 %% Calculate Category Cells
@@ -67,9 +69,51 @@ paramsSB.calcSelective = 1;
 if paramsSB.calcSelective
     [sig_cells_sb, areas_sb] = NWB_calcSelective_SB(nwbAll_sb,all_units_sbcat,paramsSB);
 end
+%% Category Cells Per-Area
+specify_selectivity = 1;
+if paramsSB.calcSelective && specify_selectivity
+    % Getting selectivity
+    sig_cells_total = logical(sig_cells_sb.concept_cells);
+    unit_areas = cellfun(@(x) condenseAreas(x),areas_sb,'UniformOutput',false);
+    % Areas of selective cells
+    selective_areas = unit_areas(sig_cells_total);
+    
+    [unique_labels, ~, label_assignments] = unique(unit_areas);
+    label_hist = histcounts(label_assignments);
+
+    [unique_labels_selective, ~, label_assignments_selective] = unique(selective_areas);
+    label_hist_selective = histcounts(label_assignments_selective);
+    
+
+    is_identical = strcmp(unique_labels,unique_labels_selective);
+    if all(is_identical)
+        selective_proportions = label_hist_selective./label_hist*100;
+        for i = 1:length(unique_labels)
+            fprintf('%s %.2f%% (%d/%d)\n',unique_labels{i}, selective_proportions(i),label_hist_selective(i),label_hist(i) )
+        end
+    else
+        error('Labels not identical.')
+    end
+end
+
+%% Sternberg CAT Example Params
+paramsSB_ex.doPlot = 1;  % if =1, plot significant cells. 
+paramsSB_ex.plotAlways = 0; % Plot regardless of selectivity (warning: generates a lot of figures unless exportFig=1)
+paramsSB_ex.plotMode = 1; % Which cell type to plot (1: Concept, 2: Maint, 3: Probe, 4: All)
+paramsSB_ex.exportFig = 0; 
+paramsSB_ex.exportType = 'png'; % File type for export. 'png' is the default. 
+paramsSB_ex.rateFilter =  []; % Rate filter in Hz. Setting to empty disables the filter. 
+paramsSB_ex.figOut = [paths.figOut fs 'stats_sternberg-cat_example'];
+%% STERNBERG CAT Examples. Loops over Example Cells in Daume et al
+% For speed, specify the import range as [6] beforehand.
+paramsSB_ex.processExamples = 0;
+if paramsSB_ex.processExamples
+    [sig_cells_sb_ex, areas_sb_ex] = NWB_SB_plotCell_Sternberg(nwbAll_sb,all_units_sbcat,paramsSB_ex);
+end
 
 %% State cells/lfps per area per Pt
 countAreas = 0;
+write2xlsx = 0;
 if countAreas
     AOIs = {'Hippo','Amy','preSMA','dACC','vmPFC'}; %#ok<*UNRCH>
     unitCountsAll = zeros(length(nwbAll_sb),length(AOIs));
@@ -125,18 +169,15 @@ if countAreas
     fprintf('SU: %d %d %d %d %d\n',sum(unitCountsAll))
     fprintf('LFP: %d %d %d %d %d\n',sum(lfpCountsAll))
     sfrmt_out = vertcat(AOIs,sfrmt_out);
-    % paths.baseData = 'Z:\LabUsers\kyzarm\data\NWB_SBCAT\data_NWB';
     subs = cell(length(nwbAll_sb)+1,1);for i=2:length(subs); subs{i} = nwbAll_sb{i-1}.identifier; end 
     sfrmt_out = horzcat(subs,sfrmt_out);
     xlsx_writePath = [paths.baseData fs 'areaCounts_temp.xlsx'];
-    
-    writeFlag = 0;
-    if writeFlag 
+    if write2xlsx 
         writecell(sfrmt_out, xlsx_writePath)
     end
 end
 %% Calculate Spike Sorting Metrics (Sternberg only)
-calcMetrics = 1;
+calcMetrics = 0;
 if calcMetrics
     is_sternberg = true;
     QAfig_sb = NWB_QA_graphs(nwbAll_sb, all_units_sbcat, is_sternberg);
@@ -146,4 +187,5 @@ if calcMetrics
     movegui(QAfig_sb,'west') 
     QAfig_sb.WindowState = 'maximized';
 end
+
 

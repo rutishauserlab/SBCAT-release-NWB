@@ -17,7 +17,7 @@ if isfile([datasetPath fs 'dandiset.yaml']) % Check if the dandiset is being acc
     else % Defaults to all available subjects
         fileList = fullFilePaths_sorted; 
     end
-else % Unexported NWB data. All-in-one folder
+else % Unformatted NWB data. All-in-one folder
     fileStruct = dir([datasetPath fs '*.nwb']);
     fullFilePaths = cellfun(@(x,y) strcat(x,fs,y),{fileStruct.folder},{fileStruct.name},'UniformOutput',false)';
     fullFilePaths_sorted = sort_nat(fullFilePaths); % Alphanumeric sort (3rd Party).
