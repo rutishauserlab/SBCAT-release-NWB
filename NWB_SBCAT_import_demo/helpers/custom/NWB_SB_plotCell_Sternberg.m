@@ -5,7 +5,7 @@ function [sig_cells_sb, areas_sb] = NWB_SB_plotCell_Sternberg(nwbAll,all_units,p
 %% Speficy unit filter
 unit_examples = [... % Specify by sub-id, ses-id, unit_id
     % See Daume et al. Fig 3a
-    5, 1, 29; ... % sub-5-ses-1 cell 29 % Category 2: Animals
+    5, 1, 29; ... % (6) sub-5-ses-1 cell 29 % Category 2: Animals
     ];
 
 %% Apply unit filter

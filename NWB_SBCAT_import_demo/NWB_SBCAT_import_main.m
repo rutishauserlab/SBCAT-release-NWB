@@ -1,15 +1,21 @@
 %% NWB_SBCAT_import_main
+% Sample code to load/analyze the provided dataset for Daume et. al. 
+% Calculates the following:
+%   - Behavioral metrics
+%   - Spike sorting metrics
+%   - Category cell selectivity metrics
+%   - Proportion of CAT cells per area
+%   - Table of LFP/SUs recorded per area
+%   - Sample cell plotting for Fig 3a in Daume et. al. 
+%
 
- 
 clear; clc; close all
 fs = filesep;
 %% Parameters
 
 % subject IDs for dataset.
-% importRange = 43; % JHU export.
 importRange = []; % Full Range
-% importRange = [ 0 0 0]; % SB-CAT Example Cat Cells
-% importRange = 1:7; % Testing range
+% importRange = [6]; % SB-CAT Example Cat Cell (See Daume et. al. Fig 3)
 
 %% Initializing and pathing
 paths.baseData = 'D:\DandiDownloads\000673'; % Dataset directory
@@ -57,8 +63,8 @@ all_units_sbcat = NWB_SB_extractUnits(nwbAll_sb,load_all_waveforms);
 
 %% STERNBERG Params
 paramsSB.doPlot = 0;  % if =1, plot significant cells. 
-paramsSB.plotAlways = 0; % Plot regardless of selectivity (warning: generates a lot of figures unless exportFig=1)
-paramsSB.plotMode = 1; % Which cell type to plot (1: Concept, 2: Maint, 3: Probe, 4: All)
+paramsSB.plotAlways = 0; % Plot regardless of selectivity (NOTE: generates a lot of figures unless exportFig=1)
+paramsSB.plotMode = 1; % Which cell type to plot (1: Category)
 paramsSB.exportFig = 0; 
 paramsSB.exportType = 'png'; % File type for export. 'png' is the default. 
 paramsSB.rateFilter =  []; % Rate filter in Hz. Setting to empty disables the filter. 
@@ -97,7 +103,7 @@ if paramsSB.calcSelective && specify_selectivity
 end
 
 %% Sternberg CAT Example Params
-paramsSB_ex.doPlot = 1;  % if =1, plot significant cells. 
+paramsSB_ex.doPlot = 0;  % if =1, plot significant cells. 
 paramsSB_ex.plotAlways = 0; % Plot regardless of selectivity (warning: generates a lot of figures unless exportFig=1)
 paramsSB_ex.plotMode = 1; % Which cell type to plot (1: Concept, 2: Maint, 3: Probe, 4: All)
 paramsSB_ex.exportFig = 0; 
@@ -113,7 +119,7 @@ end
 
 %% State cells/lfps per area per Pt
 countAreas = 0;
-write2xlsx = 0;
+write2xlsx = 0; % Write proportions to an excel file
 if countAreas
     AOIs = {'Hippo','Amy','preSMA','dACC','vmPFC'}; %#ok<*UNRCH>
     unitCountsAll = zeros(length(nwbAll_sb),length(AOIs));
@@ -176,8 +182,8 @@ if countAreas
         writecell(sfrmt_out, xlsx_writePath)
     end
 end
-%% Calculate Spike Sorting Metrics (Sternberg only)
-calcMetrics = 0;
+%% Calculate Spike Sorting Metrics
+calcMetrics = 0; % Generate QA and behavioral metrics
 if calcMetrics
     is_sternberg = true;
     QAfig_sb = NWB_QA_graphs(nwbAll_sb, all_units_sbcat, is_sternberg);
