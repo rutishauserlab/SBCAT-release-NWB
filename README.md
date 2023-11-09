@@ -53,7 +53,6 @@ All validators returned no errors in data formatting & best-use practices across
 
 
 ## MATLAB Analysis
-* NOTE: To be added
 
 The main script in this repo, `NWB_SBCAT_import_main.m`, is designed to analyze the released dataset and to reproduce select figures & metrics noted in Daume et. al. [year]. It can calculate several metrics related to behavior (reaction time, accuracy), spike sorting, and single-unit (SU) activity during the task.
 
@@ -67,6 +66,8 @@ The main script in this repo, `NWB_SBCAT_import_main.m`, is designed to analyze 
 * **Extracting Single Units:** Single unit information is extracted from the loaded NWB files for ease of indexing, using the `NWB_SB_extractUnits` function. If spike waveforms are not needed for analysis, the `load_all_waveforms` flag can be set to `0` to only extract the mean waveform. All future plots will use this mean waveform instead of a spike waveform pdf. 
 
 * **Task Analysis:** This section is preceded by a parameters section, which allows for the control of various stages of the analysis and plotting process. For example, one can choose to plot figures for significant cells by setting `paramsSC.doPlot = 0` or filter units being used for analysis by specifying a minimum firing rate threshold `paramsSC.rateFilter`. To disable analysis of all cells entirely, set `paramsSC.calcSelective = 0`. 
+
+* **Selectivity by Area:** This section calculates the proportion of category-selective cells across each area measured. 
 
 * **Recordings by Area:** The script also calculates the number of LFP channels and cells by area and saves the results into a .xlsx file. This can be disabled by setting `countAreas = 0`.
   
