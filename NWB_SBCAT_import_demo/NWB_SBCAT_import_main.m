@@ -15,11 +15,16 @@ fs = filesep;
 
 % subject IDs for dataset.
 importRange = []; % Full Range
-% importRange = [6]; % SB-CAT Example Cat Cell (See Daume et. al. Fig 3)
+% importRange = [1 2 3]; % Arbitrary example
+
+% importRange = [6]; % SB-CAT Example Cat Cell (See Daume et. al. Fig 3a)
+% importRange = [5]; % LFP PAC (See Daume et. al. Fig 2d)
+% importRange = [32]; % PAC Cell Example
+
+
 
 %% Initializing and pathing
 paths.baseData = 'D:\DandiDownloads\000673'; % Dataset directory
-% paths.baseData = 'Z:\LabUsers\kyzarm\data\NWB_SBCAT\data_NWB'; % 2hr load time due to network constraints
 paths.nwb_sb = paths.baseData; % Dandiset Directory
 % This script should be in master directory
 scriptPath = matlab.desktop.editor.getActiveFilename; scriptPathParse = split(scriptPath,fs); scriptPathParse = scriptPathParse(1:end-1);
@@ -63,20 +68,20 @@ all_units_sbcat = NWB_SB_extractUnits(nwbAll_sb,load_all_waveforms);
 
 %% STERNBERG Params
 paramsSB.doPlot = 0;  % if =1, plot significant cells. 
-paramsSB.plotAlways = 0; % Plot regardless of selectivity (NOTE: generates a lot of figures unless exportFig=1)
+paramsSB.plotAlways = 0; % Plot regardless of selectivity (NOTE: generates a lot of figure windows unless exportFig=1)
 paramsSB.plotMode = 1; % Which cell type to plot (1: Category)
 paramsSB.exportFig = 0; 
 paramsSB.exportType = 'png'; % File type for export. 'png' is the default. 
-paramsSB.rateFilter =  []; % Rate filter in Hz. Setting to empty disables the filter. 
+paramsSB.rateFilter =  []; % Rate filter in Hz. Removes cells from analysis that are below threshold. Setting to empty disables the filter. 
 paramsSB.figOut = [paths.figOut fs 'stats_sternberg'];
 
 %% Calculate Category Cells
-paramsSB.calcSelective = 1;
+paramsSB.calcSelective = 0;
 if paramsSB.calcSelective
     [sig_cells_sb, areas_sb] = NWB_calcSelective_SB(nwbAll_sb,all_units_sbcat,paramsSB);
 end
 %% Category Cells Per-Area
-specify_selectivity = 1;
+specify_selectivity = 0;
 if paramsSB.calcSelective && specify_selectivity
     % Getting selectivity
     sig_cells_total = logical(sig_cells_sb.concept_cells);
@@ -90,7 +95,6 @@ if paramsSB.calcSelective && specify_selectivity
     [unique_labels_selective, ~, label_assignments_selective] = unique(selective_areas);
     label_hist_selective = histcounts(label_assignments_selective);
     
-
     is_identical = strcmp(unique_labels,unique_labels_selective);
     if all(is_identical)
         selective_proportions = label_hist_selective./label_hist*100;
@@ -115,6 +119,18 @@ paramsSB_ex.figOut = [paths.figOut fs 'stats_sternberg-cat_example'];
 paramsSB_ex.processExamples = 0;
 if paramsSB_ex.processExamples
     [sig_cells_sb_ex, areas_sb_ex] = NWB_SB_plotCell_Sternberg(nwbAll_sb,all_units_sbcat,paramsSB_ex);
+end
+%% PAC LFP Example
+% For speed, specify the import range as [5] beforehand.
+paramsSB_ex.processPAC_LFP = 0;
+if paramsSB_ex.processPAC_LFP 
+    LFP_PAC_figs = NWB_samplePAC_LFP(nwbAll_sb, paths);
+end
+%% PAC SU Example
+% For speed, specify the import range as [32] beforehand.
+paramsSB_ex.processPAC_SU = 0;
+if paramsSB_ex.processPAC_SU
+    SU_PAC_figs = NWB_samplePAC_SU(nwbAll_sb, all_units_sbcat, paths);
 end
 
 %% State cells/lfps per area per Pt
@@ -193,5 +209,21 @@ if calcMetrics
     movegui(QAfig_sb,'west') 
     QAfig_sb.WindowState = 'maximized';
 end
+
+%% Simulate Noise Correlations
+simNoiseCorr = 0;
+if simNoiseCorr
+    run('main_popGeometry_noiseCorrs.m')
+end
+
+
+
+
+
+
+
+
+
+
 
 
