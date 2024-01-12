@@ -1,22 +1,15 @@
 function [figOut] = NWB_samplePAC_SU(nwbAll, all_units, paths)
 % - nwbAll: a cell array of all nwb files imported in NWB_SBCAT_import_main
 % operation: 
-
-
-
-
-% whichSession = ‘P101T’;
-% whichNeuron = ‘RPH7_2’;
-% whichChannel = ‘RPH5’;
-% whichLoad = 3;
-
+% - paths: Paths defined in NWB_SBCAT_import_main. The path of interest is
+% the code path, which is used to load the dataset of the trials selected
+% for the computation of LFP PAC
+% - all_units: The output of NWB_SB_extractUnits
 
 fs = filesep;
 
 sample_sub = 26;
 sample_ses = 1;
-% lfp_ID = 34;
-% su_id = 16;
 
 
 % Access data loaded from import script
@@ -36,7 +29,7 @@ else
     nwb = nwbAll{find_example};
 end
 
-for i = 33
+for i = 33 % Can loop over multiple. Single channel/su chosen for speed. 
     for j = 20
         lfp_ID = i;
         su_ID = j;     
