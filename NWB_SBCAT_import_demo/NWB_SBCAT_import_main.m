@@ -15,7 +15,7 @@ fs = filesep;
 
 % subject IDs for dataset.
 importRange = []; % Full Range
-% importRange = [1 2 3]; % Arbitrary example
+% importRange = [1:5]; % Arbitrary example
 
 % importRange = [6]; % SB-CAT Example Cat Cell (See Daume et. al. Fig 3a)
 % importRange = [5]; % LFP PAC (See Daume et. al. Fig 2d)
@@ -109,7 +109,7 @@ end
 %% Sternberg CAT Example Params
 paramsSB_ex.doPlot = 0;  % if =1, plot significant cells. 
 paramsSB_ex.plotAlways = 0; % Plot regardless of selectivity (warning: generates a lot of figures unless exportFig=1)
-paramsSB_ex.plotMode = 1; % Which cell type to plot (1: Concept, 2: Maint, 3: Probe, 4: All)
+paramsSB_ex.plotMode = 1; % Which cell type to plot (1: Concept)
 paramsSB_ex.exportFig = 0; 
 paramsSB_ex.exportType = 'png'; % File type for export. 'png' is the default. 
 paramsSB_ex.rateFilter =  []; % Rate filter in Hz. Setting to empty disables the filter. 
