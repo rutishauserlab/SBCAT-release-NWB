@@ -1,8 +1,8 @@
 # Sample code for: Control of working memory maintenance by theta-gamma phase amplitude coupling of human hippocampal neurons
 
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
-[![Generic badge](https://img.shields.io/badge/release-pending-green.svg)](https://rb.gy/otj7q)
-[![Generic badge](https://img.shields.io/badge/DOI-pending-orange.svg)](https://rb.gy/otj7q)
+[![Generic badge](https://img.shields.io/badge/release-1.0.0-green.svg)](https://github.com/rutishauserlab/workingmem-release-NWB/releases/tag/v1.0.0)
+[![Generic badge](https://img.shields.io/badge/DOI-pending-orange.svg)](https://doi.org/10.5281/zenodo.10494534)
 
 ## Introduction
 
@@ -35,7 +35,8 @@ Running the provided code and analyzing the dataset in MATLAB requires the downl
 
 NOTE: The dataset will be made publicly available upon acceptance of the underlying paper. 
 
-The dataset is available in NWB format from the DANDI Archive under [Placeholder](https://rb.gy/otj7q). This dataset is also available from the DABI Archive under [Placeholder](https://rb.gy/otj7q)
+The dataset is available in NWB format from the DANDI Archive under [Placeholder](https://rb.gy/otj7q). 
+<!--This dataset is also available from the DABI Archive under [Placeholder](https://rb.gy/otj7q) -->
 
 Dandi datasets are accessible through the Dandi command line interface (CLI). To install this Python client, use `pip install dandi` or `conda install -c conda-forge dandi`, depending on your Python environment setup. 
 
