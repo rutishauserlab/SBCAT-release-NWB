@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Kyzar"
+  given-names: "Michael"
+  orcid: "https://orcid.org/0009-0004-4392-9933"
+- family-names: "Daume"
+  given-names: "Jonathan"
+  orcid: "https://orcid.org/0000-0002-6516-7288"
+- family-names: "Rutishauser"
+  given-names: "Ueli"
+  orcid: "https://orcid.org/0000-0002-9207-7069"
+title: "Sample code for: Control of working memory maintenance by theta-gamma phase amplitude coupling of human hippocampal neurons"
+version: 1.0.0
+doi: 10.5281/zenodo.10494534
+date-released: 2024-01-15
+url: "https://github.com/rutishauserlab/SBCAT-release-NWB"
+
+  
