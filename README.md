@@ -60,7 +60,7 @@ All validators returned no errors in data formatting & best-use practices across
 The main script in this repo, `NWB_SBCAT_import_main.m`, is designed to analyze the released dataset and to reproduce select figures & metrics noted in Daume et. al. [year]. It can calculate several metrics related to behavior (reaction time, accuracy), spike sorting, and single-unit (SU) activity during the task.
 
 ### Steps to Use the Script
-* **Set Parameters:** The first section of the script sets important parameters. The `importRange` is the range of files for the dataset. For the current release, subject IDs have a range of `1:44`. The full range can also be specified by setting `importRange=[]`
+* **Set Parameters:** The first section of the script sets important parameters. The `importRange` is the range of files for the dataset. For the current release, subject IDs have a range of `1:44`. The full range can also be specified by setting `importRange=[]`.
 
 * **Initialization and Pathing:** The script then defines the directory paths for the code, the currently installed MatNWB package, and the dataset, and then adds them to the MATLAB path. If figures are generated, there is an additional option to add a custom save destination. Please ensure that the defined paths in the script are correct for your setup. This section also uses MatNWB's generateCore() function to initialize the NWB API if it has not been initialized already.
 
@@ -70,17 +70,19 @@ The main script in this repo, `NWB_SBCAT_import_main.m`, is designed to analyze 
 
 * **Single Unit Analysis:** This section is preceded by a parameters section, which allows for the control of various stages of the analysis and plotting process. For example, one can choose to plot figures for significant cells by setting `paramsSC.doPlot = 1` or filter units being used for analysis by specifying a minimum firing rate threshold `paramsSC.rateFilter`. To disable analysis of all cells entirely, set `paramsSC.calcSelective = 0`. 
 
-* **Selectivity by Area:** This section calculates the proportion of category-selective cells across each area measured. 
+* **Selectivity by Area:** This section calculates the proportion of category-selective cells across each area measured. It is intended to use `importRange = 1:44`.
 
 * **Single Unit Analysis Example:** This section plots the example category-selective cell that can be found in Fig 3a of Daume et al. To decrease loading time, please set `importRange = 6`. 
 
-* **LFP PAC Example Figure:** This section recreates the example gamma amplitude distribution across theta phase bins in addition to the comodulograms across load conditions (Fig 2d, Daume et al). To decrease loading times, set `importRange = 5`
+* **LFP PAC Example Figure:** This section recreates the example gamma amplitude distribution across theta phase bins in addition to the comodulograms across load conditions (Fig 2d, Daume et al). To decrease loading times, set `importRange = 5`.
 
-* **SU PAC Example Figure:** This section illustrates the binning and the model comparisons used in PAC neuron selection for an example neuron. To decrease loading times, set `importRange = 32`
+* **SU PAC Example Figure:** This section illustrates the binning and the model comparisons used in PAC neuron selection for an example neuron. To decrease loading times, set `importRange = 32`.
 
 * **Recordings by Area:** The script also calculates the number of LFP channels and cells by area and saves the results into a .xlsx file. This can be disabled by setting `countAreas = 0`.
   
 * **Spike Sorting Quality Metrics:** This section plots spike sorting metrics for single units recorded in the Sternberg/screening tasks. These metrics include the percentage of inter-spike intervals (ISIs) that were less than 3 ms, mean firing rates for all units, coefficient of variation (CV2) values for all units, signal-to-noise ratio (SNR) of the peak of the mean waveform, mean SNR for all values in a unit’s mean waveform, pairwise projection distance between each unit in which multiple units were found on the same electrode, isolation distance (scaled to log 10 for ease of viewing) across all units for which this metric was defined.
+
+* **Simulating Noise Correlations:** Use main_popGeometry_noiseCorrs.m to simulate noise correlations between two or more (as specified by `Pdims`) neurons. This script will determine and plot the signal and the noise axes, their angle, as well as the standard deviation of the values projected onto the signal axis before and after noise correlations were removed among the simulated neurons. The script allows to change the number of trials (`NperGroup`), the number of neurons with category tuning (`Pdims_withTuning`), the method to extract the noise axes (`modeNoiseAxis`), as well as the classifier (`modeClassifier`). Parameters can be changed from within the script.
 
 Please make sure to thoroughly read the comments in the code to understand the functionality of each part. If you encounter any problems, please report them as issues in the repository.
 
