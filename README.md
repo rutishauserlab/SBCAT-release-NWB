@@ -82,6 +82,8 @@ The main script in this repo, `NWB_SBCAT_import_main.m`, is designed to analyze 
   
 * **Spike Sorting Quality Metrics:** This section plots spike sorting metrics for single units recorded in the Sternberg/screening tasks. These metrics include the percentage of inter-spike intervals (ISIs) that were less than 3 ms, mean firing rates for all units, coefficient of variation (CV2) values for all units, signal-to-noise ratio (SNR) of the peak of the mean waveform, mean SNR for all values in a unit’s mean waveform, pairwise projection distance between each unit in which multiple units were found on the same electrode, isolation distance (scaled to log 10 for ease of viewing) across all units for which this metric was defined.
 
+* **Simulating Noise Correlations:** Use main_popGeometry_noiseCorrs.m to simulate noise correlations between two or more (as specified by "Pdims") neurons. This script will determine and plot the signal and the noise axes, their angle, as well as the standard deviation of the values projected onto the signal axis before and after noise correlations were removed among the simulated neurons. The script allows to change the number of trials (NperGroup), the number of neurons with (category) tuning (Pdims_withTuning), the method to extract the noise axes (modeNoiseAxis), as well as the classifier (modeClassifier). Parameters can be changed from within the script.
+
 Please make sure to thoroughly read the comments in the code to understand the functionality of each part. If you encounter any problems, please report them as issues in the repository.
 
 
