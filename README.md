@@ -70,7 +70,7 @@ The main script in this repo, `NWB_SBCAT_import_main.m`, is designed to analyze 
 
 * **Single Unit Analysis:** This section is preceded by a parameters section, which allows for the control of various stages of the analysis and plotting process. For example, one can choose to plot figures for significant cells by setting `paramsSC.doPlot = 1` or filter units being used for analysis by specifying a minimum firing rate threshold `paramsSC.rateFilter`. To disable analysis of all cells entirely, set `paramsSC.calcSelective = 0`. 
 
-* **Selectivity by Area:** This section calculates the proportion of category-selective cells across each area measured. 
+* **Selectivity by Area:** This section calculates the proportion of category-selective cells across each area measured. It is intended to use `importRange = 1:44`.
 
 * **Single Unit Analysis Example:** This section plots the example category-selective cell that can be found in Fig 3a of Daume et al. To decrease loading time, please set `importRange = 6`. 
 
