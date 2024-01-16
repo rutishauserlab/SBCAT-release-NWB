@@ -22,7 +22,6 @@ importRange = []; % Full Range
 % importRange = [32]; % PAC Cell Example
 
 
-
 %% Initializing and pathing
 paths.baseData = 'D:\DandiDownloads\000673'; % Dataset directory
 paths.nwb_sb = paths.baseData; % Dandiset Directory

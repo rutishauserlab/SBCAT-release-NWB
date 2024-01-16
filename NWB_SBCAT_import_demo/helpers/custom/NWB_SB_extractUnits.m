@@ -47,6 +47,26 @@ for i=1:length(nwbAll)
             wf_cells_all{j} = wf_all(:,wf_ind(wf_ind_ind(j)-1)+1:wf_ind(wf_ind_ind(j)))';
         end
         wf_cells = wf_cells_all;
+
+    elseif ~load_all_waveforms && ~isfield(nwbAll{i}.units, 'waveform_mean')
+        wf_all = nwbAll{i}.units.waveforms.data.load();
+        wf_ind = nwbAll{i}.units.waveforms_index.data.load();
+        wf_ind_ind = nwbAll{i}.units.waveforms_index_index.data.load();
+        % Compare num_waveforms to num_spikes
+        if size(wf_all,2) ~= length(spike_times_session)
+            error('Number of spikes does not equal number of waveforms')
+        elseif size(wf_all,2) ~= max(wf_ind)
+            error('Waveform indices exceed the number of waveforms.')
+        end
+        % Performs double indexing
+        wf_cells_all = cell(length(unit_ids),1);
+        wf_cells_all{1} = wf_all(:,1:wf_ind(wf_ind_ind(1)))';
+        for j = 2:length(wf_cells_all)
+            wf_cells_all{j} = wf_all(:,wf_ind(wf_ind_ind(j)-1)+1:wf_ind(wf_ind_ind(j)))';
+        end
+        wf_cells_preMean = wf_cells_all;
+        wf_cells = cellfun(@(x) mean(x), wf_cells_preMean, 'UniformOutput',false);
+
     else % Imports only mean waveforms. 
         wf_mean_all = nwbAll{i}.units.waveform_mean.data.load();
         % Assigning to cell array
