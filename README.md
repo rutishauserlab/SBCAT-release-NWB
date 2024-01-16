@@ -99,7 +99,7 @@ Acquisition of this dataset has been supported by the National Institute of Heal
 
 ## License 
 
-"workingmem-release-NWB" Copyright (c) 2023, Rutishauser Lab. All rights reserved.
+"SBCAT-release-NWB" Copyright (c) 2023, Rutishauser Lab. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
