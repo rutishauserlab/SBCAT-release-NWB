@@ -2,7 +2,7 @@ function [comdlgrm, comdlgrm_z, phase2power] = cfc_tort_comodulogram(datMat,srat
 
 %% [comdlgrm, comdlgrm_z] = cfc_tort_comodulogram(LFP,fs,n_surrogates,n_bins,LF_steps,LF_bw,HF_steps,tcutEdge)
 %
-% Compute PAC comodulogram with Tort's method in a single channel and condition
+% Compute PAC comodulogram with Tort's method (Tort et al, 2009, 2010) in a single channel and condition
 %
 % Input
 % datMat: 2d matrix containing time samples of interest per trial (samples x trials)
@@ -23,7 +23,7 @@ rng('shuffle')
 
 %% defaults
 if nargin < 3 || isempty(n_surrogates)
-    n_surrogates = 0; % number of surrogates; if 0, no surrogates are computed
+    n_surrogates = 200; % number of surrogates; if 0, no surrogates are computed
 end
 
 if nargin < 4 || isempty(n_bins)
@@ -60,7 +60,8 @@ comdlgrm = nan(n_LF,n_HF);
 comdlgrm_surr_mean = nan(n_LF,n_HF);
 comdlgrm_surr_std = nan(n_LF,n_HF);
 phase2power = nan(n_LF,n_HF,n_bins);
-%% Make filter input
+
+%% Prepare filter input
 
 EEG = [];
 EEG.srate  = srate;

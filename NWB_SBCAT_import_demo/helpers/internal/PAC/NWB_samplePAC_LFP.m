@@ -102,7 +102,7 @@ for i = range
     %%
     % datMat: samples x trials
     srate = lfp_srate; % Should be 400
-    n_surrogates =200; % 200 by default
+    n_surrogates = 0; % 200 were used for z-scored MI in Daume et al
     n_bins = 18;
     LF_steps = 2:2:14;
     LF_bw = 2;
@@ -144,9 +144,9 @@ for i = range
     title('Load 1')
     xlabel('Frequency for phase (Hz)')
     ylabel('Frequency for amplitude (Hz)')
-    clim([0 7e-4])
+%     clim([0 7e-4])
     colorbar
-    set(gca,'fontsize',10)
+    set(gca,'fontsize',10,'clim',[0 7e-4])
     axis square
     
     % Load 3
@@ -163,9 +163,9 @@ for i = range
     title('Load 3')
     xlabel('Frequency for phase (Hz)')
     ylabel('Frequency for amplitude (Hz)')
-    clim([0 7e-4])
+%     clim([0 7e-4])
     colorbar
-    set(gca,'fontsize',10)
+    set(gca,'fontsize',10,'clim',[0 7e-4])
     axis square
 
     fig_cell{i}= f;

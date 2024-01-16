@@ -135,13 +135,13 @@ Sin_theta = sin(Lf_phase);
 T = table(Spike_count,Lf_phase,Cos_theta,Sin_theta,Gamma_amp);
 
 
-%% GLM
+%% compute GLMs
 disp('Computing GLM comparisons...')
-model1_full = fitglme(T,'Spike_count ~ (Cos_theta + Sin_theta) *  Gamma_amp', 'Distribution','Poisson','FitMethod','Laplace');
-model2_noInt = fitglme(T,'Spike_count ~ Cos_theta + Sin_theta +  Gamma_amp', 'Distribution','Poisson','FitMethod','Laplace');
+model1_full = fitglme(T,'Spike_count ~ (Cos_theta + Sin_theta) * Gamma_amp', 'Distribution','Poisson','FitMethod','Laplace');
+model2_noInt = fitglme(T,'Spike_count ~ Cos_theta + Sin_theta + Gamma_amp', 'Distribution','Poisson','FitMethod','Laplace');
 compare_stats_int = compare(model2_noInt,model1_full);
 
-model3_noGamma = fitglme(T,'Spike_count ~ (Cos_theta + Sin_theta) *  Gamma_amp - Gamma_amp', 'Distribution','Poisson','FitMethod','Laplace');
+model3_noGamma = fitglme(T,'Spike_count ~ (Cos_theta + Sin_theta) * Gamma_amp - Gamma_amp', 'Distribution','Poisson','FitMethod','Laplace');
 compare_stats_meg = compare(model3_noGamma,model1_full);
 
 %% plot
@@ -155,13 +155,13 @@ sc_lowgamma = T.Spike_count(T.Gamma_amp == '1');
 maxsc = max([sc_highgamma;sc_lowgamma])+5;
 subplot(221)
 histogram('BinEdges', edges', 'BinCounts', sc_highgamma)
-set(gca,'ylim', [0 maxsc],'xtick',[-180 0 180],'fontsize',18)
+set(gca,'ylim', [0 maxsc],'xtick',[-180 0 180],'fontsize',12)
 title('High gamma power')
 ylabel('Count')
 xlabel('Theta Phase')
 subplot(223)
 histogram('BinEdges', edges', 'BinCounts', sc_lowgamma)
-set(gca,'ylim', [0 maxsc],'xtick',[-180 0 180],'fontsize',18)
+set(gca,'ylim', [0 maxsc],'xtick',[-180 0 180],'fontsize',12)
 title('Low gamma power')
 xlabel('Theta Phase')
 
@@ -169,11 +169,11 @@ txt_int = sprintf('LRstat = %.2f, p = %.4f',compare_stats_int.LRStat(2),compare_
 txt_meg = sprintf('LRstat = %.2f, p = %.4f',compare_stats_meg.LRStat(2),compare_stats_meg.pValue(2));
 x = 300;
 y = max(sc_lowgamma)/2;
-text(x,y+30,'Model comparisons:','fontsize',18,'FontWeight','bold')
-text(x,y+23,'Model 1 vs Model 2 (Interaction):','fontsize',18)
-text(x, y+18, txt_int,'fontsize',18)
-text(x,y+10,'Model 1 vs Model 3 (Gamma):','fontsize',18)
-text(x, y+5, txt_meg,'fontsize',18)
+text(x,y+30,'Model comparisons:','fontsize',14,'FontWeight','bold')
+text(x,y+23,'Model 1 vs Model 2 (Interaction):','fontsize',12)
+text(x, y+18, txt_int,'fontsize',12)
+text(x,y+10,'Model 1 vs Model 3 (Gamma):','fontsize',12)
+text(x, y+5, txt_meg,'fontsize',12)
 
 
 

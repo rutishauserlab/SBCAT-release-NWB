@@ -35,7 +35,7 @@
 % Date: August 2023
 
 %% Parameters
-Pdims = 3;  % nr of dimensions
+Pdims = 2;  % nr of dimensions
 Pdims_withTuning = 1;  % nr of dims that have tuning to stimulus
 NperGroup = 200;  % nr datapoints per class
 addNoiseCommon = 1; % common noise correlations. 0 off, 1 on 
