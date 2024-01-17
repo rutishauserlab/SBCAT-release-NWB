@@ -97,7 +97,7 @@ Please make sure to thoroughly read the comments in the code to understand the f
 
 ## Funding
 
-Acquisition of this dataset has been supported by the National Institute of Health (U01NS117839-04).
+Acquisition of this dataset has been supported by the National Institute of Neurological Disorders and Stroke (U01NS103792 and U01NS117839 to U.R.) and the National Science Foundation (BCS-2219800 to U.R.).
 
 ## License 
 
