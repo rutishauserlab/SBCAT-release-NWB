@@ -92,7 +92,7 @@ Please make sure to thoroughly read the comments in the code to understand the f
 * [Jonathan Daume](mailto:Jonathan.Daume@cshs.org)
 * [Ueli Rutishauser](mailto:Ueli.Rutishauser@cshs.org) (Principal Investigator)
 
->Citation:[Daume et al. (2023). Control of working memory maintenance by theta-gamma phase amplitude coupling of human hippocampal neurons. bioRxiv, 2023.04.05.535772. doi: 10.1101/2023.04.05.535772]](https://www.biorxiv.org/content/10.1101/2023.04.05.535772v3)
+>Citation:[Daume et al. (2023). Control of working memory maintenance by theta-gamma phase amplitude coupling of human hippocampal neurons. bioRxiv, 2023.04.05.535772. doi: 10.1101/2023.04.05.535772](https://www.biorxiv.org/content/10.1101/2023.04.05.535772v3)
 
 
 ## Funding
