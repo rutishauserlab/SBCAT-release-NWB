@@ -139,7 +139,7 @@ if paramsSB.calcSelective && specify_selectivity
 end
 
 %% Sternberg CAT Example Params
-paramsSB_ex.doPlot = 0;  % if =1, plot significant cells. 
+paramsSB_ex.doPlot = 1;  % if =1, plot significant cells. 
 paramsSB_ex.plotAlways = 0; % Plot regardless of selectivity (warning: generates a lot of figures unless exportFig=1)
 paramsSB_ex.exportFig = 0; 
 paramsSB_ex.exportType = 'png'; % File type for export. 'png' is the default. 
