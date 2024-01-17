@@ -6,7 +6,7 @@
 
 ## Introduction
 
-This repository contains the code that accompanies Daume et. al. 'Control of working memory maintenance by theta-gamma phase amplitude coupling of human hippocampal neurons.' The purpose of the code in this repository is to provide examples of how to use the released data. This dataset is formatted in the [Neurodata Without Borders (NWB)](https://www.nwb.org/) format, which can easily be accessed from both MATLAB and Python as described [here](https://nwb-schema.readthedocs.io/en/latest/index.html). 
+This repository contains the code that accompanies [Daume et. al. 2023](https://www.biorxiv.org/content/10.1101/2023.04.05.535772v3) 'Control of working memory maintenance by theta-gamma phase amplitude coupling of human hippocampal neurons.' The purpose of the code in this repository is to provide examples of how to use the released data. This dataset is formatted in the [Neurodata Without Borders (NWB)](https://www.nwb.org/) format, which can easily be accessed from both MATLAB and Python as described [here](https://nwb-schema.readthedocs.io/en/latest/index.html). 
 
 Abstract of the paper:
 >Retaining information in working memory (WM) is a demanding process that relies on cognitive control to protect memoranda-specific persistent activity from interference. How cognitive control regulates WM storage, however, remains unknown. Here we show that interactions of frontal control and hippocampal persistent activity are coordinated by theta-gamma phase amplitude coupling (TG-PAC). We recorded single neurons in the human medial temporal and frontal lobe while patients maintained multiple items in WM. In the hippocampus, TG-PAC was indicative of WM load and quality. We identified cells that selectively spiked during nonlinear interactions of theta phase and gamma amplitude. The spike timing of these PAC neurons was coordinated with frontal theta activity when cognitive control demand was high. By introducing noise correlations with persistently active neurons in the hippocampus, PAC neurons shaped the geometry of the population code. This led to higher-fidelity representations of WM content that were associated with improved behavior. Our results support a multicomponent architecture of WM, with frontal control managing maintenance of WM content in storage-related areas.Within this framework, hippocampal TG-PAC integrates cognitive control and WM storage across brain areas, thereby suggesting a potential mechanism for top-down control over sensory-driven processes.
@@ -92,12 +92,12 @@ Please make sure to thoroughly read the comments in the code to understand the f
 * [Jonathan Daume](mailto:Jonathan.Daume@cshs.org)
 * [Ueli Rutishauser](mailto:Ueli.Rutishauser@cshs.org) (Principal Investigator)
 
->[[Citation Pending](https://rb.gy/otj7q)]
+>Citation:[Daume et al. (2023). Control of working memory maintenance by theta-gamma phase amplitude coupling of human hippocampal neurons. bioRxiv, 2023.04.05.535772. doi: 10.1101/2023.04.05.535772]](https://www.biorxiv.org/content/10.1101/2023.04.05.535772v3)
 
 
 ## Funding
 
-Acquisition of this dataset has been supported by the National Institute of Neurological Disorders and Stroke (U01NS103792 and U01NS117839 to U.R.) and the National Science Foundation (BCS-2219800 to U.R.).
+Acquisition of this dataset has been supported by the National Institute of Neurological Disorders and Stroke (U01NS103792 and U01NS117839 to U.R.), the National Science Foundation (BCS-2219800 to U.R.), and the German National Academy of Sciences Leopoldina (Postdoc fellowship to J.D.).
 
 ## License 
 
