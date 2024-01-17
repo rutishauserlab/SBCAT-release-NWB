@@ -265,6 +265,16 @@ if calcMetrics
 end
 
 %% Simulate Noise Correlations
+% Use main_popGeometry_noiseCorrs.m to simulate noise correlations between 
+% two or more (as specified by Pdims) neurons. This script will determine 
+% and plot the signal and the noise axes, their angle, as well as the 
+% standard deviation of the values projected onto the signal axis before and 
+% after noise correlations were removed among the simulated neurons. The 
+% script allows to change the number of trials (NperGroup), the number of 
+% neurons with category tuning (Pdims_withTuning), the method to extract the 
+% noise axes (modeNoiseAxis), as well as the classifier (modeClassifier). 
+% Parameters can be changed from within the script.
+
 simNoiseCorr = 0;
 if simNoiseCorr
     run('main_popGeometry_noiseCorrs.m')
