@@ -1,8 +1,8 @@
 function popGeometry_plotSignalNoiseAxes3D(data, NperGroup, fHyperplane, signalVector_toUse, noiseVector1, noiseVector2)
 
-plot3( data(1:NperGroup,1), data(1:NperGroup,2), data(1:NperGroup,3), 'ro');
+s1 = plot3( data(1:NperGroup,1), data(1:NperGroup,2), data(1:NperGroup,3), 'ro');
 hold on
-plot3( data(NperGroup+1:end,1), data(NperGroup+1:end,2),data(NperGroup+1:end,3), 'bo');
+s2 = plot3( data(NperGroup+1:end,1), data(NperGroup+1:end,2),data(NperGroup+1:end,3), 'bo');
 hold off
 
 %== plot the hyperplane. Define 4 points
@@ -34,9 +34,11 @@ line( [0 signalVector_toUse(1)]*scaleFactor, [ 0 signalVector_toUse(2)]*scaleFac
 scaleFactor=10;
 hNoise1=line( [0 noiseVector1(1)]*scaleFactor, [ 0 noiseVector1(2)]*scaleFactor,[ 0 noiseVector1(3)]*scaleFactor, 'color', 'g', 'linewidth', 3);
 hNoise2=line( [0 noiseVector2(1)]*scaleFactor, [ 0 noiseVector2(2)]*scaleFactor,[ 0 noiseVector2(3)]*scaleFactor, 'color', 'g', 'linewidth', 3);
-
-legend([hSignal hNoise1 hNoise2], {'Signal axis', 'Noise axis 1', 'Noise axis 2'});
-
+if noiseVector1 ~= noiseVector2
+    legend([hSignal hNoise1 hNoise2 s2 s1], {'Signal axis', 'Noise axis 1', 'Noise axis 2', 'Category 1', 'Category 2'});
+else
+    legend([hSignal hNoise1 s2 s1], {'Signal axis', 'Noise axis', 'Category 1', 'Category 2'});
+end
 %==same range so things look orthogonal
 mVal = max(abs(data(:)));
 rangeCommon=[-mVal mVal];
@@ -44,6 +46,6 @@ xlim(rangeCommon);
 ylim(rangeCommon);
 zlim(rangeCommon);
 
-xlabel('x');
-ylabel('y');
-zlabel('z');
+xlabel('Neuron 1');
+ylabel('Neuron 2');
+zlabel('Neuron 3');

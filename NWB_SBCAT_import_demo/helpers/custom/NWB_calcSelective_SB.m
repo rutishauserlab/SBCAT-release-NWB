@@ -24,11 +24,9 @@ all_units = all_units(logical(aboveRate));
 
 
 areasSternberg = cell(length(all_units),1);
-concept_cells_sb = zeros(length(all_units),1); 
+cat_cells_sb = zeros(length(all_units),1); 
 hzPref = zeros(length(all_units),1);
 hzNonPref = zeros(length(all_units),1);
-maint_cells_sb = zeros(length(all_units),1);
-probe_cells_sb = zeros(length(all_units),1);
 % Looping over all cells
 for i = 1:length(all_units) 
     SU = all_units(i);
@@ -39,7 +37,7 @@ for i = 1:length(all_units)
     brain_area = nwbAll{SU.session_count}.general_extracellular_ephys_electrodes.vectordata.get('location').data.load(SU.electrodes);
     clusterID = nwbAll{SU.session_count}.units.vectordata.get('clusterID_orig').data.load(SU.unit_id);
     areasSternberg{i} = brain_area{:};
-    fprintf('Processing: (%d/%d) sub-%s-ses-%s, Unit %d Cluster %d ',i,length(all_units),subject_id,session_id,cellID,clusterID)
+    fprintf('Processing: (%d/%d) sub-%s-ses-%s, Unit %d Cluster %d ',i,length(all_units),string(subject_id),string(session_id),cellID,clusterID)
     
     % Loading stim timestamps and loads
     tsFix = num2cell(nwbAll{SU.session_count}.intervals_trials.vectordata.get('timestamps_FixationCross').data.load());
@@ -125,6 +123,8 @@ for i = 1:length(all_units)
     alphaLim = 0.05;
     % sig_method = 'parametric';
     sig_method = 'non-parametric';
+%     nonPar_method = 'other'; % Prior selectivity method. Not same used in Daume et al
+    nonPar_method = 'statcond';
     if strcmp(sig_method,'parametric')
         p_ANOVA = 1; p_bANOVA = 1;%#ok<NASGU> % Preset as '1' to allow for paramsSB.plotAlways.
         p_ANOVA = anovan(Hz_allTrials,{string(CAT_allTrials)}, 'display','off','model', 'linear','alpha',alphaLim,'varnames','picID');
@@ -132,19 +132,38 @@ for i = 1:length(all_units)
             p_bANOVA = anovan(Hz_allTrials,{string(id_Trial_maxOnly)}, 'display','off','model', 'linear','alpha',alphaLim,'varnames','picID');
             if p_bANOVA < alphaLim % Second Test: Binarized 1-way ANOVA (simplifies to t-test)
             fprintf('| Category -> sub-%s-ses-%s, Unit %d p1:%.2f p2:%.2f',SU.subject_id,SU.session_id,SU.unit_id,p_ANOVA,p_bANOVA)
-            concept_cells_sb(i) = 1;
+            cat_cells_sb(i) = 1;
             end
         end
     elseif strcmp(sig_method,'non-parametric')
-        p_ANOVA = 1; p_bANOVA = 1;%#ok<NASGU> % Preset as '1' to allow for paramsSB.plotAlways.
-        groups = cellstr(string(CAT_allTrials));
-        p_ANOVA = randanova1(Hz_allTrials,groups, 2000);
-        if p_ANOVA < alphaLim % First test: 1-way ANOVA            
+        p_ANOVA = 1; p_bANOVA = 1; F_ANOVA = 1;%#ok<NASGU> % Preset as '1' to allow for paramsSB.plotAlways.
+        if strcmp(nonPar_method,'statcond') % Statcond version (From Daume et al)
+            uniqueCats = unique(CAT_allTrials);
+            D = cell(length(uniqueCats),1);
+            for j = 1:length(uniqueCats)
+                D{j} = Hz_allTrials(CAT_allTrials == uniqueCats(j))';
+            end  
+            [F_ANOVA, ~, p_ANOVA] = statcond(D,'paired','off','method', 'perm', 'naccu', 2000, 'verbose','off');
+        elseif strcmp(nonPar_method,'other') % Non-statcond version
+            groups = cellstr(string(CAT_allTrials));
+            p_ANOVA = randanova1(Hz_allTrials,groups, 2000);
+        else
+            error('Significance method not specified')
+        end
+           
+        if p_ANOVA < alphaLim && ~isnan(F_ANOVA)  % First test: 1-way ANOVA            
             a = Hz_allTrials(CAT_allTrials==idMaxHz); b = Hz_allTrials(CAT_allTrials~=idMaxHz); 
-            p_perm = permutationTest(a,b,2000,'sidedness','larger');
-            if p_perm < alphaLim % Second Test: Binarized 1-way ANOVA (simplifies to t-test)
-            fprintf('| Category -> sub-%s-ses-%s, Unit %d p1:%.2f p2:%.2f',SU.subject_id,SU.session_id,SU.unit_id,p_ANOVA,p_perm)
-            concept_cells_sb(i) = 1;
+            if strcmp(nonPar_method,'statcond') % Statcond version (From Daume et al)
+                [~,~,p_perm] = statcond({a',b'},'paired','off','method', 'perm', 'naccu', 2000, 'verbose','off');
+            elseif strcmp(nonPar_method,'other') % Non-statcond version
+                p_perm = permutationTest(a,b,2000);
+            else
+            error('Significance method not specified')
+            end
+            
+            if p_perm < 2*alphaLim % (2x since right sided) Second Test: Binarized 1-way ANOVA (simplifies to t-test)
+            fprintf('| Category -> sub-%s-ses-%s, Unit %d p1:%.2f p2:%.2f',string(SU.subject_id),string(SU.session_id),SU.unit_id,p_ANOVA,p_perm)
+            cat_cells_sb(i) = 1;
             end
             p_bANOVA = p_perm; % For var references later in the script.
         end      
@@ -160,36 +179,14 @@ for i = 1:length(all_units)
 
     %% Rasters, PSTH, & Selective Image
     % Flagging significant cells for plotting
-    switch params.plotMode
-        case 1 % Category
-            plotFlag = params.doPlot && concept_cells_sb(i);
-        case 2 % Maint
-            plotFlag = params.doPlot && maint_cells_sb(i);
-        case 3 % Probe
-            plotFlag = params.doPlot && probe_cells_sb(i);
-        case 4 % All
-            plotFlag = params.doPlot && (concept_cells_sb(i) || maint_cells_sb(i) || probe_cells_sb(i));
-        otherwise
-            warning('Plot mode not specified. Defaulting to category cells.\n')
-            in = input('Continue? (y/n)\n',"s");
-            if any(strcmp(in,["Y","y"]))
-                plotFlag = params.doPlot && concept_cells_sb(i);
-            elseif any(strcmp(in,["N","n"]))
-                fprintf('Aborting.\n')
-                return
-            else
-                fprintf('Answer not specified. Aborting.\n')
-                return
-            end
-    end
-
+    plotFlag = params.doPlot && cat_cells_sb(i);
     if plotFlag || params.plotAlways
         % Metrics
         subject_id = SU.subject_id;
         cellID = SU.unit_id;
         brain_area = nwbAll{SU.session_count}.general_extracellular_ephys_electrodes.vectordata.get('location').data.load(SU.electrodes);
         clusterID = nwbAll{SU.session_count}.units.vectordata.get('clusterID_orig').data.load(SU.unit_id);
-        plabelStr = ['sub-' num2str(subject_id) '-ses-2'...
+        plabelStr = ['sub-' char(subject_id) '-ses-2'...
             ' | BA: ' strrep(brain_area{:},'_',' ') ...
             ' | Cell: ' num2str(cellID) ...
             ' | Elec: ' num2str(SU.electrodes) ...
@@ -416,20 +413,14 @@ for i = 1:length(all_units)
             
             % Append selectivity to folder. Will store in separate folder
             % for each type. Allows for folders for overlapping cell types.
-            if concept_cells_sb(i)
+            if cat_cells_sb(i)
                 figPath = [figPath '_category']; %#ok<AGROW>
-            end
-            if maint_cells_sb(i)
-                figPath = [figPath '_maint']; %#ok<AGROW>
-            end
-            if probe_cells_sb(i)
-                figPath = [figPath '_probe']; %#ok<AGROW>
             end
 
             if ~isfolder(figPath)
                 mkdir(figPath)
             end
-            fName = [identifier '_Cell_' num2str(cellID) '_Cl_' num2str(clusterID) '_BA_' brain_area{:}];
+            fName = [char(identifier) '_Cell_' num2str(cellID) '_Cl_' num2str(clusterID) '_BA_' brain_area{:}];
             saveas(gcf, [figPath filesep fName '.' params.exportType ],params.exportType)
             fprintf('| Figure Saved')
             close(gcf);
@@ -438,15 +429,13 @@ for i = 1:length(all_units)
     fprintf('\n') % New line for each cell
 end
 % Comparing category cells for preferred and non-preferred trials. 
-hzPref_conceptOnly = hzPref(logical(concept_cells_sb));
-hzNonPref_conceptOnly = hzNonPref(logical(concept_cells_sb));
-[~, p_prefNonPref] = ttest(hzPref_conceptOnly,hzNonPref_conceptOnly,'Tail','right','Alpha',alphaLim);
+hzPref_catOnly = hzPref(logical(cat_cells_sb));
+hzNonPref_catOnly = hzNonPref(logical(cat_cells_sb));
+[~, p_prefNonPref] = ttest(hzPref_catOnly,hzNonPref_catOnly,'Tail','right','Alpha',alphaLim);
 
-fprintf('Total Category Cells: %d/%d (%.2f%%)\n',sum(concept_cells_sb),length(all_units),sum(concept_cells_sb)/length(all_units)*100)
-sig_cells.concept_cells = concept_cells_sb;
+fprintf('Total Category Cells: %d/%d (%.2f%%)\n',sum(cat_cells_sb),length(all_units),sum(cat_cells_sb)/length(all_units)*100)
+sig_cells.cat_cells = cat_cells_sb;
 sig_cells.hzPref = hzPref;
 sig_cells.hzNonPref = hzNonPref;
-sig_cells.maint_cells = maint_cells_sb;
-sig_cells.probe_cells = probe_cells_sb;
 end
 

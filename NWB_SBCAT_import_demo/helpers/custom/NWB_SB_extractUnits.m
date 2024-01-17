@@ -16,7 +16,7 @@ for i=1:length(nwbAll)
     electrode_areas = cellstr(nwbAll{i}.general_extracellular_ephys_electrodes.vectordata.get('location').data.load());
     unit_areas = electrode_areas([electrodes_ind{:}]);
     
-    fprintf('Loading SUs: Subject ID %s (%d/%d)...',subject_id{1},i,length(nwbAll))
+    fprintf('Loading SUs: Subject ID %s (%d/%d)...',string(subject_id{1}),i,length(nwbAll))
     
 
     % Organize spike times
