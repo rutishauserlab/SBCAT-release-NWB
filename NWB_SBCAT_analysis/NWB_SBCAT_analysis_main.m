@@ -104,7 +104,7 @@ paramsSB.figOut = [paths.figOut fs 'stats_sternberg'];
 % specifying a minimum firing rate threshold paramsSC.rateFilter. To disable 
 % analysis of all cells entirely, set paramsSC.calcSelective = 0.
 
-paramsSB.calcSelective = 0;
+paramsSB.calcSelective = 1;
 if paramsSB.calcSelective
     [sig_cells_sb, areas_sb] = NWB_calcSelective_SB(nwbAll_sb,all_units_sbcat,paramsSB);
 end
@@ -113,7 +113,7 @@ end
 % category-selective cells across each area measured (compute the previous section first) 
 % It is intended to use `importRange = 1:44`.
 
-specify_selectivity = 0; % Set importRange to 1:44
+specify_selectivity = 1; % Set importRange to 1:44
 if paramsSB.calcSelective && specify_selectivity
     % Getting selectivity
     sig_cells_total = logical(sig_cells_sb.cat_cells);
@@ -150,7 +150,7 @@ paramsSB_ex.figOut = [paths.figOut fs 'stats_sternberg-cat_example'];
 % found in Fig 3a of Daume et al. 
 % To decrease loading time, please set importRange = 6.
 
-paramsSB_ex.processExamples = 0;
+paramsSB_ex.processExamples = 1;
 if paramsSB_ex.processExamples
     [sig_cells_sb_ex, areas_sb_ex] = NWB_SB_plotCell_Sternberg(nwbAll_sb,all_units_sbcat,paramsSB_ex);
 end
@@ -159,7 +159,7 @@ end
 % theta phase bins in addition to the comodulograms across load conditions 
 % (Fig 2d, Daume et al). To decrease loading times, set importRange = 5. 
 
-paramsSB_ex.processPAC_LFP = 0;
+paramsSB_ex.processPAC_LFP = 1;
 if paramsSB_ex.processPAC_LFP 
     LFP_PAC_figs = NWB_samplePAC_LFP(nwbAll_sb, paths);
 end
@@ -168,7 +168,7 @@ end
 % used in PAC neuron selection for an example neuron. 
 % To decrease loading times, set importRange = 32.
 
-paramsSB_ex.processPAC_SU = 0;
+paramsSB_ex.processPAC_SU = 1;
 if paramsSB_ex.processPAC_SU
     SU_PAC_figs = NWB_samplePAC_SU(nwbAll_sb, all_units_sbcat, paths);
 end
@@ -178,7 +178,7 @@ end
 % area and saves the results into a .xlsx file. 
 % This can be disabled by setting countAreas = 0.
 
-countAreas = 0;
+countAreas = 1;
 write2xlsx = 0; % Write proportions to an excel file
 if countAreas
     AOIs = {'Hippo','Amy','preSMA','dACC','vmPFC'}; %#ok<*UNRCH>
@@ -253,7 +253,7 @@ end
 % isolation distance (scaled to log 10 for ease of viewing) across all units 
 % for which this metric was defined.
 
-calcMetrics = 0; % Generate QA and behavioral metrics
+calcMetrics = 1; % Generate QA and behavioral metrics
 if calcMetrics
     is_sternberg = true;
     QAfig_sb = NWB_QA_graphs(nwbAll_sb, all_units_sbcat, is_sternberg);
@@ -275,7 +275,7 @@ end
 % noise axes (modeNoiseAxis), as well as the classifier (modeClassifier). 
 % Parameters can be changed from within the script.
 
-simNoiseCorr = 0;
+simNoiseCorr = 1;
 if simNoiseCorr
     run('main_popGeometry_noiseCorrs.m')
 end
