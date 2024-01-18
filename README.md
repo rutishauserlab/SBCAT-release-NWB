@@ -57,7 +57,7 @@ All validators returned no errors in data formatting & best-use practices across
 
 ## MATLAB Analysis
 
-The main script in this repo, `NWB_SBCAT_import_main.m`, is designed to analyze the released dataset and to reproduce select figures & metrics noted in Daume et. al. [year]. It can calculate several metrics related to behavior (reaction time, accuracy), spike sorting, and single-unit (SU) activity during the task.
+The main script in this repo, `NWB_SBCAT_analysis_demo_main.m`, is designed to analyze the released dataset and to reproduce select figures & metrics noted in Daume et. al. [year]. It can calculate several metrics related to behavior (reaction time, accuracy), spike sorting, and single-unit (SU) activity during the task.
 
 ### Steps to Use the Script
 * **Set Parameters:** The first section of the script sets important parameters. The `importRange` is the range of files for the dataset. For the current release, subject IDs have a range of `1:44`. The full range can also be specified by setting `importRange=[]`.
@@ -103,7 +103,7 @@ Acquisition of this dataset has been supported by the National Institute of Neur
 
 ## License 
 
-"SBCAT-release-NWB" Copyright (c) 2023, Rutishauser Lab. All rights reserved.
+"SBCAT-release-NWB" Copyright (c) 2024, Rutishauser Lab. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
