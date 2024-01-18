@@ -87,6 +87,8 @@ The main script in this repo, `NWB_SBCAT_import_main.m`, is designed to analyze 
 Please make sure to thoroughly read the comments in the code to understand the functionality of each part. If you encounter any problems, please report them as issues in the repository.
 
 
+This repository has been tested successfully in MATLAB versions 2019a, 2020a, 2022a, & 2023a.
+
 ## Contributors
 * [Michael Kyzar](mailto:kyzarnexus@gmail.com)
 * [Jonathan Daume](mailto:Jonathan.Daume@cshs.org)
