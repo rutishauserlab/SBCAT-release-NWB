@@ -29,7 +29,7 @@ This repository can be downloaded by entering the following commands:
 
 ## Installation (MatNWB)
 
-Running the provided code and analyzing the dataset in MATLAB requires the download and initialization of MatNWB, a MATLAB interface for reading and writing NWB 2.x files. Instructions for how to [download and initialize MatNWB](https://github.com/NeurodataWithoutBorders/matnwb) have been listed on the project's public git repo. Further documentation for how to use MatNWB can be found [here](https://neurodatawithoutborders.github.io/matnwb/). MatNWB version 2.6.0.2 was used for the curation and analysis of this dataset.
+Running the provided code and analyzing the dataset in MATLAB requires the download and initialization of MatNWB, a MATLAB interface for reading and writing NWB 2.x files. Instructions for how to [download and initialize MatNWB](https://github.com/NeurodataWithoutBorders/matnwb) have been listed on the project's public git repo. Further documentation for how to use MatNWB can be found [here](https://neurodatawithoutborders.github.io/matnwb/). MatNWB version [2.6.0.2](https://github.com/NeurodataWithoutBorders/matnwb/releases/tag/v2.6.0.2) was used for the curation and analysis of this dataset.
 
 ## Installation (Data)
 
