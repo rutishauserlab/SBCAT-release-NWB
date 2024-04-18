@@ -35,7 +35,7 @@ Running the provided code and analyzing the dataset in MATLAB requires the downl
 
 NOTE: The dataset will be made publicly available upon acceptance of the underlying paper. 
 
-The dataset is available in NWB format from the DANDI Archive under [Placeholder](https://rb.gy/otj7q). 
+The dataset is available in NWB format from the DANDI Archive under [DANDI:000673](https://dandiarchive.org/dandiset/000673). 
 <!--This dataset is also available from the DABI Archive under [Placeholder](https://rb.gy/otj7q) -->
 
 Dandi datasets are accessible through the Dandi command line interface (CLI). To install this Python client, use `pip install dandi` or `conda install -c conda-forge dandi`, depending on your Python environment setup. 
