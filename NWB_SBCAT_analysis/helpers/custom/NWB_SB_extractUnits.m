@@ -5,6 +5,8 @@ function [all_units] =NWB_SB_extractUnits(nwbAll, load_all_waveforms)
 %   importRange:  
 %
 %   mkyzar 4/27/2023
+%   updated JD 01/2025 (correction of waveform_index_index)
+
 all_units = {};
 for i=1:length(nwbAll)
     unit_ids = num2cell(nwbAll{i}.units.id.data.load() + 1); % Convert to 1-based indexing
@@ -37,14 +39,14 @@ for i=1:length(nwbAll)
         % Compare num_waveforms to num_spikes
         if size(wf_all,2) ~= length(spike_times_session)
             error('Number of spikes does not equal number of waveforms')
-        elseif size(wf_all,2) ~= max(wf_ind)
+        elseif size(wf_all,2) ~= max(wf_ind_ind)
             error('Waveform indices exceed the number of waveforms.')
         end
         % Performs double indexing
         wf_cells_all = cell(length(unit_ids),1);
-        wf_cells_all{1} = wf_all(:,1:wf_ind(wf_ind_ind(1)))';
+        wf_cells_all{1} = wf_all(:,1:wf_ind_ind(wf_ind(1)))';
         for j = 2:length(wf_cells_all)
-            wf_cells_all{j} = wf_all(:,wf_ind(wf_ind_ind(j)-1)+1:wf_ind(wf_ind_ind(j)))';
+            wf_cells_all{j} = wf_all(:,wf_ind_ind(wf_ind(j)-1)+1:wf_ind_ind(wf_ind(j)))';
         end
         wf_cells = wf_cells_all;
 
@@ -60,9 +62,9 @@ for i=1:length(nwbAll)
         end
         % Performs double indexing
         wf_cells_all = cell(length(unit_ids),1);
-        wf_cells_all{1} = wf_all(:,1:wf_ind(wf_ind_ind(1)))';
+        wf_cells_all{1} = wf_all(:,1:wf_ind_ind(wf_ind(1)))';
         for j = 2:length(wf_cells_all)
-            wf_cells_all{j} = wf_all(:,wf_ind(wf_ind_ind(j)-1)+1:wf_ind(wf_ind_ind(j)))';
+            wf_cells_all{j} = wf_all(:,wf_ind_ind(wf_ind(j)-1)+1:wf_ind_ind(wf_ind(j)))';
         end
         wf_cells_preMean = wf_cells_all;
         wf_cells = cellfun(@(x) mean(x), wf_cells_preMean, 'UniformOutput',false);
